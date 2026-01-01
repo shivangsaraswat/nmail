@@ -12,7 +12,11 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center p-24 text-center relative">
+      <img src="/nmail-logo.png" alt="Nmail Logo" className="absolute top-8 left-8 h-8" />
+
+      <img src="/logo-namdapha.webp" alt="Namdapha Logo" className="h-24 mb-6" />
+
       <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl mb-4">
         Namdapha
       </h1>
@@ -20,11 +24,11 @@ export default async function Home() {
         Centralized Outbound Email
       </h1>
       <p className="text-lg text-muted-foreground max-w-[600px] mb-8">
-        Secure, permission-based email sending for your organization.
+        Namdapha House internal email sending system.
         Log in to access your assigned sender identities.
       </p>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 justify-center">
         <form
           action={async () => {
             "use server"
