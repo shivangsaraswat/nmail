@@ -3,6 +3,7 @@ import { auth, signIn } from "@/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { TopRightPattern, BottomLeftPattern } from "@/components/ui/patterns"
 
 export default async function Home() {
   const session = await auth()
@@ -12,7 +13,9 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24 text-center relative">
+    <div className="flex min-h-screen flex-col items-center justify-center p-24 text-center relative overflow-hidden">
+      <TopRightPattern />
+      <BottomLeftPattern />
       <img src="/nmail-logo.png" alt="Nmail Logo" className="absolute top-8 left-8 h-8" />
 
       <img src="/logo-namdapha.webp" alt="Namdapha Logo" className="h-24 mb-6" />
