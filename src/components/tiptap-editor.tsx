@@ -10,6 +10,7 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 import { Color } from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
+import { FontSize } from '@/lib/tiptap-font-size'
 import { useEffect } from 'react'
 
 interface TiptapEditorProps {
@@ -46,6 +47,9 @@ export function TiptapEditor({ value, onChange, onEditorReady }: TiptapEditorPro
             }),
             Highlight.configure({
                 multicolor: true,
+            }),
+            FontSize.configure({
+                types: ['textStyle'],
             }),
         ],
         content: value,

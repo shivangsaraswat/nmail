@@ -9,6 +9,7 @@ import { CSVUploadButton } from "@/components/csv-upload-button"
 import { TiptapEditor } from "@/components/tiptap-editor"
 import { HtmlEditorModal } from "@/components/html-editor-modal"
 import { GmailColorPicker } from "@/components/gmail-color-picker"
+import { GmailFontSizePicker } from "@/components/gmail-font-size-picker"
 import { toast } from "sonner"
 import { Loader2, Code, ChevronDown, Upload, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -295,6 +296,13 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                                 <SelectItem value="'Comic Sans MS', cursive">Comic Sans</SelectItem>
                             </SelectContent>
                         </Select>
+
+                        {/* Font Size */}
+                        <GmailFontSizePicker
+                            onSizeChange={(size) => {
+                                editor.chain().focus().setFontSize(size).run()
+                            }}
+                        />
 
                         <div className="w-px h-5 bg-gray-300"></div>
 
