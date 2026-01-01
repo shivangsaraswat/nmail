@@ -277,7 +277,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
 
                 {/* Persistent Formatting Toolbar */}
                 {editor && !isHtmlMode && (
-                    <div className="mx-4 mb-2 p-1.5 flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="mx-4 mb-1 px-3 py-1 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full">
                         {/* Font Family */}
                         <Select
                             defaultValue="sans-serif"
@@ -320,9 +320,9 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                         <div className="w-px h-5 bg-gray-300"></div>
 
                         {/* Basic Formatting */}
-                        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bold') && "bg-gray-200")} title="Bold"><Bold className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('italic') && "bg-gray-200")} title="Italic"><Italic className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('underline') && "bg-gray-200")} title="Underline"><Underline className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bold') && "bg-gray-200")} title="Bold"><Bold className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('italic') && "bg-gray-200")} title="Italic"><Italic className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('underline') && "bg-gray-200")} title="Underline"><Underline className="h-4 w-4" /></button>
 
                         <div className="w-px h-5 bg-gray-300"></div>
 
@@ -340,16 +340,16 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                         <div className="w-px h-5 bg-gray-300"></div>
 
                         {/* Lists */}
-                        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bulletList') && "bg-gray-200")} title="Bullet list"><List className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('orderedList') && "bg-gray-200")} title="Numbered list"><ListOrdered className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('blockquote') && "bg-gray-200")} title="Quote"><Quote className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('strike') && "bg-gray-200")} title="Strikethrough"><Strikethrough className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bulletList') && "bg-gray-200")} title="Bullet list"><List className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('orderedList') && "bg-gray-200")} title="Numbered list"><ListOrdered className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('blockquote') && "bg-gray-200")} title="Quote"><Quote className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('strike') && "bg-gray-200")} title="Strikethrough"><Strikethrough className="h-4 w-4" /></button>
 
                         <div className="w-px h-5 bg-gray-300"></div>
 
                         {/* Undo/Redo */}
-                        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} className="p-1.5 hover:bg-gray-100 rounded text-gray-600 disabled:opacity-30" title="Undo"><Undo className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} className="p-1.5 hover:bg-gray-100 rounded text-gray-600 disabled:opacity-30" title="Redo"><Redo className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} className="p-1 hover:bg-gray-100 rounded text-gray-600 disabled:opacity-30" title="Undo"><Undo className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} className="p-1 hover:bg-gray-100 rounded text-gray-600 disabled:opacity-30" title="Redo"><Redo className="h-4 w-4" /></button>
                     </div>
                 )}
 
@@ -393,7 +393,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                 })}
 
                 {/* Footer Toolbar */}
-                <div className="px-4 py-3 flex items-center justify-between sticky bottom-0 bg-white/95 backdrop-blur z-10 transition-all">
+                <div className="px-4 py-2 flex items-center justify-between sticky bottom-0 bg-white z-10">
                     <div className="flex items-center gap-2">
                         {/* Send Button Group */}
                         <div className="flex items-center rounded-full bg-[#0B57D0] hover:bg-[#0b57d0]/90 transition-colors text-white h-9 group shadow-sm hover:shadow">

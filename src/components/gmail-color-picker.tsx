@@ -67,7 +67,7 @@ export function GmailColorPicker({ onTextColorChange, onBackgroundColorChange, c
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-1.5 hover:bg-gray-100 rounded text-gray-600 flex flex-col items-center justify-center"
+                className="p-1 hover:bg-gray-100 rounded text-gray-600 flex flex-col items-center justify-center"
                 title="Text color"
             >
                 <span className="text-sm font-bold leading-none">A</span>

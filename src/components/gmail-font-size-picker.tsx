@@ -34,7 +34,7 @@ export function GmailFontSizePicker({ onSizeChange, currentSize = '1em' }: FontS
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-1.5 hover:bg-gray-100 rounded text-gray-600 flex items-center gap-0.5"
+                className="p-1 hover:bg-gray-100 rounded text-gray-600 flex items-center gap-0.5"
                 title="Font size"
             >
                 <span className="text-base font-bold">T</span>

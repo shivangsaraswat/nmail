@@ -36,7 +36,7 @@ export function GmailAlignmentPicker({ onAlignChange, currentAlign = 'left' }: A
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-1.5 hover:bg-gray-100 rounded text-gray-600 flex items-center gap-0.5"
+                className="p-1 hover:bg-gray-100 rounded text-gray-600 flex items-center gap-0.5"
                 title="Text alignment"
             >
                 <CurrentIcon className="h-4 w-4" />
