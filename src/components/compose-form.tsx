@@ -131,29 +131,29 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
 
     return (
         <>
-            <form action={formAction} className="flex flex-col h-full bg-white rounded-t-lg shadow-xl overflow-hidden border border-gray-200">
+            <form action={formAction} className="flex flex-col h-full bg-card rounded-t-lg shadow-xl overflow-hidden border border-border">
                 {/* Gmail-style Window Header */}
-                <div className="flex items-center justify-between px-4 py-3 bg-[#F2F6FC] border-b border-gray-200 cursor-move">
-                    <span className="text-sm font-medium text-gray-700">New Message</span>
+                <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border cursor-move">
+                    <span className="text-sm font-medium text-foreground">New Message</span>
                 </div>
 
                 {/* Form Fields Area */}
                 <div className="px-4">
                     {/* From Row */}
-                    <div className="flex items-center h-10 border-b border-gray-200 group">
-                        <span className="text-sm text-gray-500 w-[50px] flex-shrink-0">From</span>
+                    <div className="flex items-center h-10 border-b border-border group">
+                        <span className="text-sm text-muted-foreground w-[50px] flex-shrink-0">From</span>
                         <div className="flex-1">
                             <Select name="senderIdentityId" value={selectedIdentity} onValueChange={setSelectedIdentity} required>
                                 <SelectTrigger className="w-full border-0 shadow-none h-auto p-0 text-sm focus:ring-0 hover:bg-transparent data-[placeholder]:text-muted-foreground">
-                                    <div className="flex items-center gap-1 text-gray-800">
+                                    <div className="flex items-center gap-1 text-foreground">
                                         <SelectValue placeholder="Select Sender Identity" />
                                     </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {allowedIdentities.map((identity) => (
                                         <SelectItem key={identity.id} value={identity.id}>
-                                            <span className="font-medium text-gray-900">{identity.displayName}</span>
-                                            <span className="text-gray-500 ml-1">&lt;{identity.emailAddress}&gt;</span>
+                                            <span className="font-medium text-foreground">{identity.displayName}</span>
+                                            <span className="text-muted-foreground ml-1">&lt;{identity.emailAddress}&gt;</span>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -162,8 +162,8 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                     </div>
 
                     {/* To Row */}
-                    <div className="flex items-center h-10 border-b border-gray-200 group relative">
-                        <span className="text-sm text-gray-500 w-[50px] flex-shrink-0 group-focus-within:text-gray-800 transition-colors">To</span>
+                    <div className="flex items-center h-10 border-b border-border group relative">
+                        <span className="text-sm text-muted-foreground w-[50px] flex-shrink-0 group-focus-within:text-foreground transition-colors">To</span>
                         <div className="flex-1 flex items-center">
                             <Input
                                 id="to"
@@ -175,17 +175,17 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                                 className="border-0 shadow-none h-6 p-0 text-sm focus-visible:ring-0 placeholder:text-gray-500 caret-blue-600"
                             />
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                            {!showCc && <span onClick={() => setShowCc(true)} className="cursor-pointer hover:underline hover:text-gray-800">Cc</span>}
-                            {!showBcc && <span onClick={() => setShowBcc(true)} className="cursor-pointer hover:underline hover:text-gray-800">Bcc</span>}
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            {!showCc && <span onClick={() => setShowCc(true)} className="cursor-pointer hover:underline hover:text-foreground">Cc</span>}
+                            {!showBcc && <span onClick={() => setShowBcc(true)} className="cursor-pointer hover:underline hover:text-foreground">Bcc</span>}
                             <CSVUploadButton onEmailsExtracted={handleToCSVImport} />
                         </div>
                     </div>
 
                     {/* Cc Row */}
                     {showCc && (
-                        <div className="flex items-center py-2 border-b border-gray-200">
-                            <span className="text-sm text-gray-500 w-[40px] flex-shrink-0">Cc</span>
+                        <div className="flex items-center py-2 border-b border-border">
+                            <span className="text-sm text-muted-foreground w-[40px] flex-shrink-0">Cc</span>
                             <div className="flex-1">
                                 <Input
                                     id="cc"
@@ -201,8 +201,8 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
 
                     {/* Bcc Row */}
                     {showBcc && (
-                        <div className="flex items-center py-2 border-b border-gray-200">
-                            <span className="text-sm text-gray-500 w-[40px] flex-shrink-0">Bcc</span>
+                        <div className="flex items-center py-2 border-b border-border">
+                            <span className="text-sm text-muted-foreground w-[40px] flex-shrink-0">Bcc</span>
                             <div className="flex-1">
                                 <Input
                                     id="bcc"
@@ -217,7 +217,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                     )}
 
                     {/* Subject Row */}
-                    <div className="flex items-center h-10 border-b border-gray-200">
+                    <div className="flex items-center h-10 border-b border-border">
                         <Input
                             id="subject"
                             name="subject"
@@ -278,7 +278,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
 
                 {/* Persistent Formatting Toolbar */}
                 {editor && !isHtmlMode && (
-                    <div className="mx-4 mb-1 px-3 py-1 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full">
+                    <div className="mx-4 mb-1 px-3 py-1 flex items-center gap-1 bg-muted border border-border rounded-full">
                         {/* Font Family */}
                         <Select
                             defaultValue="sans-serif"
@@ -286,7 +286,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                                 editor.chain().focus().setFontFamily(value).run()
                             }}
                         >
-                            <SelectTrigger className="w-[100px] h-7 border-none shadow-none text-xs focus:ring-0 p-1 hover:bg-gray-100 rounded bg-transparent">
+                            <SelectTrigger className="w-[100px] h-7 border-none shadow-none text-xs focus:ring-0 p-1 hover:bg-accent rounded bg-transparent text-foreground">
                                 <SelectValue placeholder="Sans Serif" />
                             </SelectTrigger>
                             <SelectContent>
@@ -306,7 +306,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             }}
                         />
 
-                        <div className="w-px h-5 bg-gray-300"></div>
+                        <div className="w-px h-5 bg-border"></div>
 
                         {/* Text Color */}
                         <GmailColorPicker
@@ -318,14 +318,14 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             }}
                         />
 
-                        <div className="w-px h-5 bg-gray-300"></div>
+                        <div className="w-px h-5 bg-border"></div>
 
                         {/* Basic Formatting */}
-                        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bold') && "bg-gray-200")} title="Bold"><Bold className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('italic') && "bg-gray-200")} title="Italic"><Italic className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('underline') && "bg-gray-200")} title="Underline"><Underline className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('bold') && "bg-accent")} title="Bold"><Bold className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('italic') && "bg-accent")} title="Italic"><Italic className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('underline') && "bg-accent")} title="Underline"><Underline className="h-4 w-4" /></button>
 
-                        <div className="w-px h-5 bg-gray-300"></div>
+                        <div className="w-px h-5 bg-border"></div>
 
                         {/* Text Alignment */}
                         <GmailAlignmentPicker
@@ -338,19 +338,19 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             }
                         />
 
-                        <div className="w-px h-5 bg-gray-300"></div>
+                        <div className="w-px h-5 bg-border"></div>
 
                         {/* Lists */}
-                        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bulletList') && "bg-gray-200")} title="Bullet list"><List className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('orderedList') && "bg-gray-200")} title="Numbered list"><ListOrdered className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('blockquote') && "bg-gray-200")} title="Quote"><Quote className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={cn("p-1 hover:bg-gray-100 rounded text-gray-600", editor.isActive('strike') && "bg-gray-200")} title="Strikethrough"><Strikethrough className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('bulletList') && "bg-accent")} title="Bullet list"><List className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('orderedList') && "bg-accent")} title="Numbered list"><ListOrdered className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('blockquote') && "bg-accent")} title="Quote"><Quote className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={cn("p-1 hover:bg-accent rounded text-muted-foreground", editor.isActive('strike') && "bg-accent")} title="Strikethrough"><Strikethrough className="h-4 w-4" /></button>
 
-                        <div className="w-px h-5 bg-gray-300"></div>
+                        <div className="w-px h-5 bg-border"></div>
 
                         {/* Undo/Redo */}
-                        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} className="p-1 hover:bg-gray-100 rounded text-gray-600 disabled:opacity-30" title="Undo"><Undo className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} className="p-1 hover:bg-gray-100 rounded text-gray-600 disabled:opacity-30" title="Redo"><Redo className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} className="p-1 hover:bg-accent rounded text-muted-foreground disabled:opacity-30" title="Undo"><Undo className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} className="p-1 hover:bg-accent rounded text-muted-foreground disabled:opacity-30" title="Redo"><Redo className="h-4 w-4" /></button>
                     </div>
                 )}
 
@@ -394,7 +394,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                 })}
 
                 {/* Footer Toolbar */}
-                <div className="px-4 py-2 flex items-center justify-between sticky bottom-0 bg-white z-10">
+                <div className="px-4 py-2 flex items-center justify-between sticky bottom-0 bg-background z-10">
                     <div className="flex items-center gap-2">
                         {/* Send Button Group */}
                         <div className="flex items-center rounded-full bg-[#0B57D0] hover:bg-[#0b57d0]/90 transition-colors text-white h-9 group shadow-sm hover:shadow">
@@ -417,14 +417,14 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="text-black bg-gray-100 rounded ml-2 hover:bg-gray-200"
+                            className="text-foreground bg-muted rounded ml-2 hover:bg-accent"
                             title="Formatting options"
                         >
                             <span className="font-serif underline text-lg font-medium">A</span>
                         </Button>
 
                         {/* Attachment Icons */}
-                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 w-10 text-gray-600 hover:bg-gray-100">
+                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 w-10 text-muted-foreground hover:bg-accent">
                             <Paperclip className="h-5 w-5" />
                             <input
                                 type="file"
@@ -438,7 +438,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="text-gray-600 hover:bg-gray-100 rounded"
+                            className="text-muted-foreground hover:bg-accent rounded"
                             title="Insert link"
                             onClick={() => {
                                 if (!editor) return;
@@ -454,15 +454,15 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                         >
                             <LinkIcon className="h-5 w-5" />
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="text-gray-600 hover:bg-gray-100 rounded" title="Insert emoji">
+                        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:bg-accent rounded" title="Insert emoji">
                             <Smile className="h-5 w-5" />
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" className="text-gray-600 hover:bg-gray-100 rounded" title="Insert files using Drive">
+                        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:bg-accent rounded" title="Insert files using Drive">
                             <img src="https://www.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png" className="h-5 w-5 opacity-70 grayscale hover:grayscale-0 transition-all" alt="Drive" />
                         </Button>
 
                         {/* Image Upload */}
-                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-gray-600 hover:bg-gray-100">
+                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-muted-foreground hover:bg-accent">
                             <ImageIcon className="h-5 w-5" />
                             <input
                                 type="file"
@@ -483,7 +483,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                                 }}
                             />
                         </label>
-                        <Button type="button" variant="ghost" size="icon" className="text-gray-600 hover:bg-gray-100 rounded" title="Toggle confidential mode">
+                        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:bg-accent rounded" title="Toggle confidential mode">
                             <LockClock className="h-5 w-5" />
                         </Button>
 
@@ -493,7 +493,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             variant="ghost"
                             size="icon"
                             onClick={() => setHtmlModalOpen(true)}
-                            className="text-gray-600 hover:bg-gray-100 rounded"
+                            className="text-muted-foreground hover:bg-accent rounded"
                             title="Edit HTML"
                         >
                             <Code className="h-5 w-5" />
@@ -505,7 +505,7 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="text-gray-500 hover:bg-gray-100 rounded hover:text-red-600"
+                            className="text-muted-foreground hover:bg-accent rounded hover:text-red-600"
                             title="Discard draft"
                             onClick={() => {
                                 setHtmlContent('')

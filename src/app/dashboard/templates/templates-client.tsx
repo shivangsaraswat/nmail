@@ -105,8 +105,8 @@ export function TemplatesClient({ isAdmin }: TemplatesClientProps) {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Email Templates</h1>
-                    <p className="text-gray-500 text-sm mt-1">
+                    <h1 className="text-2xl font-bold text-foreground">Email Templates</h1>
+                    <p className="text-muted-foreground text-sm mt-1">
                         {isAdmin ? "Create and manage email templates" : "Browse and use email templates"}
                     </p>
                 </div>
@@ -120,10 +120,10 @@ export function TemplatesClient({ isAdmin }: TemplatesClientProps) {
 
             {/* Templates Grid */}
             {templates.length === 0 ? (
-                <div className="text-center py-16 bg-gray-50 rounded-xl border border-gray-200">
-                    <FileTextIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No templates yet</h3>
-                    <p className="text-gray-500 text-sm mb-4">
+                <div className="text-center py-16 bg-muted rounded-xl border border-border">
+                    <FileTextIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No templates yet</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
                         {isAdmin ? "Create your first email template to get started" : "No templates available yet"}
                     </p>
                     {isAdmin && (
@@ -138,11 +138,11 @@ export function TemplatesClient({ isAdmin }: TemplatesClientProps) {
                     {templates.map((template) => (
                         <div
                             key={template.id}
-                            className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                            className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                         >
                             {/* Preview Thumbnail */}
                             <div
-                                className="h-40 bg-gray-100 overflow-hidden relative"
+                                className="h-40 bg-muted overflow-hidden relative"
                                 onClick={() => setPreviewTemplate(template)}
                             >
                                 <iframe
@@ -151,18 +151,18 @@ export function TemplatesClient({ isAdmin }: TemplatesClientProps) {
                                     style={{ width: '200%', height: '200%' }}
                                     title={template.name}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/20 group-hover:bg-black/10 transition-colors" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/20 group-hover:bg-black/10 transition-colors" />
                             </div>
 
                             {/* Template Info */}
                             <div className="p-4">
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1 min-w-0" onClick={() => setPreviewTemplate(template)}>
-                                        <h3 className="font-semibold text-gray-900 truncate">{template.name}</h3>
+                                        <h3 className="font-semibold text-foreground truncate">{template.name}</h3>
                                         {template.description && (
-                                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{template.description}</p>
+                                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{template.description}</p>
                                         )}
-                                        <p className="text-xs text-gray-400 mt-2">
+                                        <p className="text-xs text-muted-foreground mt-2">
                                             By {template.createdBy.name || template.createdBy.email}
                                         </p>
                                     </div>
@@ -204,8 +204,8 @@ export function TemplatesClient({ isAdmin }: TemplatesClientProps) {
                             <DialogDescription>{previewTemplate.description}</DialogDescription>
                         )}
                     </DialogHeader>
-                    <div className="flex-1 overflow-auto bg-gray-100 rounded-lg p-4 -mx-2">
-                        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="flex-1 overflow-auto bg-muted rounded-lg p-4 -mx-2">
+                        <div className="bg-card rounded-lg shadow-sm overflow-hidden">
                             <iframe
                                 srcDoc={previewTemplate?.htmlContent}
                                 className="w-full border-0"

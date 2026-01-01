@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Home, Send, History, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText } from "lucide-react"
+import { Home, Send, History, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText, Moon, Sun } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -27,6 +27,8 @@ import {
 import { useSession, signOut } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link'
+import { useTheme } from "next-themes"
+import { useState, useEffect } from "react"
 
 export function AppSidebar() {
     const { data: session } = useSession()
@@ -135,6 +137,8 @@ export function AppSidebar() {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
+                                <ThemeToggleMenuItem />
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     className="text-red-600 focus:text-red-600 cursor-pointer"
                                     onClick={() => signOut()}
@@ -151,3 +155,40 @@ export function AppSidebar() {
     )
 }
 
+// Theme Toggle Menu Item for Dropdown
+function ThemeToggleMenuItem() {
+    const { theme, setTheme } = useTheme()
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!mounted) {
+        return (
+            <DropdownMenuItem className="cursor-pointer">
+                <Sun className="mr-2 h-4 w-4" />
+                Theme
+            </DropdownMenuItem>
+        )
+    }
+
+    return (
+        <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+            {theme === 'dark' ? (
+                <>
+                    <Sun className="mr-2 h-4 w-4" />
+                    Light Mode
+                </>
+            ) : (
+                <>
+                    <Moon className="mr-2 h-4 w-4" />
+                    Dark Mode
+                </>
+            )}
+        </DropdownMenuItem>
+    )
+}
