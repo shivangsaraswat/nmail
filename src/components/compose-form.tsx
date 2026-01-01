@@ -23,6 +23,7 @@ interface SenderIdentity {
 
 interface ComposeFormProps {
     allowedIdentities: SenderIdentity[]
+    initialTemplate?: { htmlContent: string; name: string }
 }
 
 const initialState: EmailState = {
@@ -31,7 +32,7 @@ const initialState: EmailState = {
     error: ""
 }
 
-export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
+export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormProps) {
     const [state, formAction, isPending] = useActionState(sendEmailAction, initialState)
 
     // Form state
@@ -40,7 +41,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
     const [cc, setCc] = useState("")
     const [bcc, setBcc] = useState("")
     const [subject, setSubject] = useState("")
-    const [htmlContent, setHtmlContent] = useState("")
+    const [htmlContent, setHtmlContent] = useState(initialTemplate?.htmlContent || "")
 
     // UI state
     const [showCc, setShowCc] = useState(false)
@@ -50,7 +51,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
     const [editor, setEditor] = useState<any>(null)
     const [showFormattingToolbar, setShowFormattingToolbar] = useState(false)
     const [attachments, setAttachments] = useState<File[]>([])
-    const [isHtmlMode, setIsHtmlMode] = useState(false) // When true, shows iframe preview instead of Tiptap
+    const [isHtmlMode, setIsHtmlMode] = useState(!!initialTemplate) // When true, shows iframe preview instead of Tiptap
 
     useEffect(() => {
         if (state?.success) {

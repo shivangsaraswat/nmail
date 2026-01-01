@@ -96,6 +96,16 @@ export const auditLogs = pgTable("audit_logs", {
     timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const emailTemplates = pgTable("email_templates", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    description: text("description"),
+    htmlContent: text("html_content").notNull(),
+    createdById: uuid("created_by_id").references(() => users.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // --- Relations ---
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -104,6 +114,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     permissions: many(userSenderPermissions),
     emailLogs: many(emailLogs),
     auditLogs: many(auditLogs),
+    emailTemplates: many(emailTemplates),
 }));
 
 export const senderIdentitiesRelations = relations(senderIdentities, ({ many }) => ({
@@ -130,5 +141,12 @@ export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
     senderIdentity: one(senderIdentities, {
         fields: [emailLogs.senderIdentityId],
         references: [senderIdentities.id],
+    }),
+}));
+
+export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
+    createdBy: one(users, {
+        fields: [emailTemplates.createdById],
+        references: [users.id],
     }),
 }));

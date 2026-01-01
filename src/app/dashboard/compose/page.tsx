@@ -1,13 +1,18 @@
 
 import { auth } from "@/auth"
 import { db } from "@/db"
-import { userSenderPermissions, senderIdentities } from "@/db/schema"
+import { userSenderPermissions, senderIdentities, emailTemplates } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq } from "drizzle-orm"
 import { ComposeForm } from "@/components/compose-form"
 
-export default async function ComposePage() {
+interface ComposePageProps {
+    searchParams: Promise<{ templateId?: string }>
+}
+
+export default async function ComposePage({ searchParams }: ComposePageProps) {
     const session = await auth()
+    const params = await searchParams
 
     if (!session?.user?.id) {
         redirect("/api/auth/signin")
@@ -35,6 +40,20 @@ export default async function ComposePage() {
             .filter(id => id.isActive)
     }
 
+    // Fetch template if templateId is provided
+    let initialTemplate: { htmlContent: string; name: string } | undefined
+    if (params.templateId) {
+        const template = await db.query.emailTemplates.findFirst({
+            where: eq(emailTemplates.id, params.templateId)
+        })
+        if (template) {
+            initialTemplate = {
+                htmlContent: template.htmlContent,
+                name: template.name
+            }
+        }
+    }
+
     return (
         <div className="space-y-4">
             <div>
@@ -45,7 +64,7 @@ export default async function ComposePage() {
             </div>
 
             <div className="bg-card rounded-lg border shadow-sm">
-                <ComposeForm allowedIdentities={allowedIdentities} />
+                <ComposeForm allowedIdentities={allowedIdentities} initialTemplate={initialTemplate} />
             </div>
         </div>
     )

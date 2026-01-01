@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Home, Send, History, Users, Shield, LogOut, ChevronsUpDown, PanelLeft } from "lucide-react"
+import { Home, Send, History, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -68,6 +68,14 @@ export function AppSidebar() {
                                     <Link href="/dashboard/history">
                                         <History />
                                         <span>Sent History</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild tooltip="Templates">
+                                    <Link href="/dashboard/templates">
+                                        <FileText />
+                                        <span>Templates</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
