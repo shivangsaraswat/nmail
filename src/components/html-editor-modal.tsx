@@ -56,7 +56,7 @@ export function HtmlEditorModal({ open, onOpenChange, initialHtml, onInsert }: H
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent showCloseButton={false} className="max-w-5xl w-[95vw] h-[85vh] max-h-[800px] flex flex-col p-0 gap-0 overflow-hidden">
+            <DialogContent showCloseButton={false} className="max-w-7xl w-[95vw] h-[85vh] max-h-[800px] flex flex-col p-0 gap-0 overflow-hidden">
                 {/* Accessibility: Hidden title for screen readers */}
                 <VisuallyHidden>
                     <DialogTitle>Insert HTML</DialogTitle>
