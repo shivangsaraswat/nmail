@@ -14,6 +14,9 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-24 text-center">
       <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl mb-4">
+        Namdapha
+      </h1>
+      <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl mb-4">
         Centralized Outbound Email
       </h1>
       <p className="text-lg text-muted-foreground max-w-[600px] mb-8">
