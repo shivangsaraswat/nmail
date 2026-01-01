@@ -8,6 +8,7 @@ import { sendEmailAction, type EmailState } from "@/app/actions/email"
 import { CSVUploadButton } from "@/components/csv-upload-button"
 import { TiptapEditor } from "@/components/tiptap-editor"
 import { HtmlEditorModal } from "@/components/html-editor-modal"
+import { GmailColorPicker } from "@/components/gmail-color-picker"
 import { toast } from "sonner"
 import { Loader2, Code, ChevronDown, Upload, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -298,20 +299,14 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                         <div className="w-px h-5 bg-gray-300"></div>
 
                         {/* Text Color */}
-                        <div className="relative">
-                            <input
-                                type="color"
-                                className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                                onChange={(e) => {
-                                    editor.chain().focus().setColor(e.target.value).run()
-                                }}
-                                title="Text color"
-                            />
-                            <button type="button" className="p-1.5 hover:bg-gray-100 rounded text-gray-600 flex items-center gap-0.5" title="Text color">
-                                <span className="text-sm font-bold">A</span>
-                                <div className="w-4 h-1 bg-red-500 rounded-sm"></div>
-                            </button>
-                        </div>
+                        <GmailColorPicker
+                            onTextColorChange={(color) => {
+                                editor.chain().focus().setColor(color).run()
+                            }}
+                            onBackgroundColorChange={(color) => {
+                                editor.chain().focus().toggleHighlight({ color }).run()
+                            }}
+                        />
 
                         <div className="w-px h-5 bg-gray-300"></div>
 
