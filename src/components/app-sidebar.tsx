@@ -40,7 +40,11 @@ export function AppSidebar() {
         <Sidebar collapsible="icon">
             <SidebarHeader className="h-14 border-b">
                 <div className="flex h-full w-full items-center justify-between px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-                    <span className="font-bold text-xl group-data-[collapsible=icon]:hidden">Nmail</span>
+                    <img
+                        src="/nmail-logo.png"
+                        alt="Nmail"
+                        className="h-8 group-data-[collapsible=icon]:hidden"
+                    />
                     <SidebarTrigger />
                 </div>
             </SidebarHeader>
