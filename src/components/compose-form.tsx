@@ -10,6 +10,7 @@ import { TiptapEditor } from "@/components/tiptap-editor"
 import { HtmlEditorModal } from "@/components/html-editor-modal"
 import { GmailColorPicker } from "@/components/gmail-color-picker"
 import { GmailFontSizePicker } from "@/components/gmail-font-size-picker"
+import { GmailAlignmentPicker } from "@/components/gmail-alignment-picker"
 import { toast } from "sonner"
 import { Loader2, Code, ChevronDown, Upload, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -322,6 +323,19 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                         <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('bold') && "bg-gray-200")} title="Bold"><Bold className="h-4 w-4" /></button>
                         <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('italic') && "bg-gray-200")} title="Italic"><Italic className="h-4 w-4" /></button>
                         <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={cn("p-1.5 hover:bg-gray-100 rounded text-gray-600", editor.isActive('underline') && "bg-gray-200")} title="Underline"><Underline className="h-4 w-4" /></button>
+
+                        <div className="w-px h-5 bg-gray-300"></div>
+
+                        {/* Text Alignment */}
+                        <GmailAlignmentPicker
+                            onAlignChange={(align) => {
+                                editor.chain().focus().setTextAlign(align).run()
+                            }}
+                            currentAlign={
+                                editor.isActive({ textAlign: 'center' }) ? 'center' :
+                                    editor.isActive({ textAlign: 'right' }) ? 'right' : 'left'
+                            }
+                        />
 
                         <div className="w-px h-5 bg-gray-300"></div>
 
