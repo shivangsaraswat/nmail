@@ -64,10 +64,15 @@ export function TiptapEditor({ value, onChange, onEditorReady }: TiptapEditorPro
         }
     })
 
-    // Sync external value changes if needed
+    // Sync external value changes to editor
     useEffect(() => {
-        if (editor && value === '' && editor.getText() !== '') {
-            editor.commands.setContent('')
+        if (editor && value !== editor.getHTML()) {
+            // Only update if the value is different from current editor content
+            // This prevents infinite loops
+            const currentContent = editor.getHTML()
+            if (value !== currentContent) {
+                editor.commands.setContent(value)
+            }
         }
     }, [value, editor])
 

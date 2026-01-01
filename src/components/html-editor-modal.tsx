@@ -2,16 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Code, Eye, Check, X } from "lucide-react"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Code, Eye, Upload, X } from "lucide-react"
 
 interface HtmlEditorModalProps {
     open: boolean
@@ -20,14 +17,17 @@ interface HtmlEditorModalProps {
     onInsert: (html: string) => void
 }
 
+type TabType = 'code' | 'preview' | 'upload'
+
 export function HtmlEditorModal({ open, onOpenChange, initialHtml, onInsert }: HtmlEditorModalProps) {
     const [htmlCode, setHtmlCode] = useState(initialHtml)
-    const [showPreview, setShowPreview] = useState(true)
+    const [activeTab, setActiveTab] = useState<TabType>('code')
 
     // Sync with initial HTML when modal opens
     useEffect(() => {
         if (open) {
             setHtmlCode(initialHtml)
+            setActiveTab('code')
         }
     }, [open, initialHtml])
 
@@ -40,58 +40,102 @@ export function HtmlEditorModal({ open, onOpenChange, initialHtml, onInsert }: H
         onOpenChange(false)
     }
 
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                const content = event.target?.result as string
+                setHtmlCode(content)
+                setActiveTab('code')
+            }
+            reader.readAsText(file)
+        }
+        e.target.value = ''
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-5xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
-                <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4 border-b bg-muted/30">
-                    <DialogTitle className="flex items-center gap-2.5 text-lg">
-                        <div className="p-1.5 rounded-md bg-primary/10">
-                            <Code className="h-4 w-4 text-primary" />
-                        </div>
-                        Insert HTML
-                    </DialogTitle>
-                    <DialogDescription className="text-sm mt-1.5">
-                        Paste your HTML code below and preview it before inserting into your email.
-                    </DialogDescription>
-                </DialogHeader>
+            <DialogContent showCloseButton={false} className="max-w-5xl w-[95vw] h-[85vh] max-h-[800px] flex flex-col p-0 gap-0 overflow-hidden">
+                {/* Accessibility: Hidden title for screen readers */}
+                <VisuallyHidden>
+                    <DialogTitle>Insert HTML</DialogTitle>
+                </VisuallyHidden>
 
-                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0 overflow-hidden p-6">
-                    {/* HTML Code Editor */}
-                    <div className="flex flex-col min-h-0">
-                        <div className="flex items-center justify-between mb-3">
-                            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                                <Code className="h-4 w-4 text-muted-foreground" />
-                                HTML Code
-                            </label>
-                        </div>
-                        <Textarea
-                            value={htmlCode}
-                            onChange={(e) => setHtmlCode(e.target.value)}
-                            placeholder="<div style='font-family: Arial, sans-serif;'>&#10;  <h1>Hello!</h1>&#10;  <p>Your HTML content here...</p>&#10;</div>"
-                            className="flex-1 font-mono text-sm resize-none min-h-[350px] bg-slate-950 text-slate-100 border-slate-700 placeholder:text-slate-500 rounded-lg p-4 focus-visible:ring-2 focus-visible:ring-primary/50"
-                            spellCheck={false}
-                        />
-                    </div>
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b">
+                    <h2 className="text-xl font-medium text-gray-900">Insert HTML</h2>
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
 
-                    {/* Preview Panel */}
-                    <div className="flex flex-col min-h-0">
-                        <div className="flex items-center justify-between mb-3">
-                            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                                <Eye className="h-4 w-4 text-muted-foreground" />
-                                Preview
-                            </label>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowPreview(!showPreview)}
-                                className="text-xs h-7 px-2.5 rounded-md"
-                            >
-                                {showPreview ? "Hide" : "Show"} Preview
-                            </Button>
+                {/* Tabs */}
+                <div className="flex items-center gap-0 px-6 border-b bg-gray-50">
+                    <button
+                        onClick={() => setActiveTab('code')}
+                        className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'code'
+                            ? 'text-blue-600'
+                            : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        CODE
+                        {activeTab === 'code' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('preview')}
+                        className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'preview'
+                            ? 'text-blue-600'
+                            : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        PREVIEW
+                        {activeTab === 'preview' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('upload')}
+                        className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'upload'
+                            ? 'text-blue-600'
+                            : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        UPLOAD
+                        {activeTab === 'upload' && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+                        )}
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-auto">
+                    {activeTab === 'code' && (
+                        <div className="h-full">
+                            <textarea
+                                value={htmlCode}
+                                onChange={(e) => setHtmlCode(e.target.value)}
+                                placeholder="<h1>Hello!</h1>&#10;<p>Your HTML content here...</p>"
+                                className="w-full h-full font-mono text-sm resize-none bg-[#1e1e1e] text-[#d4d4d4] p-4 focus:outline-none"
+                                style={{
+                                    minHeight: '100%',
+                                    lineHeight: '1.6',
+                                    tabSize: 2,
+                                }}
+                                spellCheck={false}
+                            />
                         </div>
-                        <div className="flex-1 border-2 border-dashed border-gray-200 rounded-lg bg-white overflow-auto min-h-[350px] shadow-inner">
-                            {showPreview && htmlCode ? (
+                    )}
+
+                    {activeTab === 'preview' && (
+                        <div className="h-full bg-white">
+                            {htmlCode ? (
                                 <iframe
                                     srcDoc={`
                                         <!DOCTYPE html>
@@ -101,8 +145,9 @@ export function HtmlEditorModal({ open, onOpenChange, initialHtml, onInsert }: H
                                             <meta name="viewport" content="width=device-width, initial-scale=1">
                                             <style>
                                                 body { 
-                                                    margin: 16px; 
+                                                    margin: 24px; 
                                                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                                    line-height: 1.5;
                                                 }
                                             </style>
                                         </head>
@@ -114,34 +159,57 @@ export function HtmlEditorModal({ open, onOpenChange, initialHtml, onInsert }: H
                                     sandbox="allow-same-origin"
                                 />
                             ) : (
-                                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                                    {!showPreview ? "Preview hidden" : "Enter HTML code to see preview"}
+                                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                                    Enter HTML code in the CODE tab to see preview
                                 </div>
                             )}
                         </div>
-                    </div>
+                    )}
+
+                    {activeTab === 'upload' && (
+                        <div className="h-full flex items-center justify-center bg-gray-50 p-8">
+                            <div className="text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <Upload className="h-8 w-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">Upload HTML File</h3>
+                                <p className="text-sm text-gray-500 mb-4">
+                                    Select an HTML file from your computer
+                                </p>
+                                <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 cursor-pointer transition-colors">
+                                    <Upload className="h-4 w-4" />
+                                    Choose File
+                                    <input
+                                        type="file"
+                                        accept=".html,.htm"
+                                        className="hidden"
+                                        onChange={handleFileUpload}
+                                    />
+                                </label>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <DialogFooter className="flex-shrink-0 gap-3 px-6 py-4 border-t bg-muted/30">
+                {/* Footer */}
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-gray-50">
                     <Button
                         type="button"
                         variant="outline"
                         onClick={handleCancel}
-                        className="gap-2 h-9 px-4 rounded-lg"
+                        className="h-9 px-6 text-sm font-medium rounded-md"
                     >
-                        <X className="h-3.5 w-3.5" />
-                        Cancel
+                        CANCEL
                     </Button>
                     <Button
                         type="button"
                         onClick={handleInsert}
-                        className="gap-2 h-9 px-4 rounded-lg bg-primary hover:bg-primary/90"
+                        className="h-9 px-6 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-700"
                         disabled={!htmlCode.trim()}
                     >
-                        <Check className="h-3.5 w-3.5" />
-                        Insert HTML
+                        INSERT
                     </Button>
-                </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     )

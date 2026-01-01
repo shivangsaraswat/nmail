@@ -66,7 +66,7 @@ export default async function UsersPage() {
                             <TableRow key={user.id}>
                                 <TableCell className="flex items-center gap-3">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user.image || ""} />
+                                        <AvatarImage src={user.image || undefined} />
                                         <AvatarFallback>{user.name?.substring(0, 2) || "U"}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col">

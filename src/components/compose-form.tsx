@@ -9,7 +9,7 @@ import { CSVUploadButton } from "@/components/csv-upload-button"
 import { TiptapEditor } from "@/components/tiptap-editor"
 import { HtmlEditorModal } from "@/components/html-editor-modal"
 import { toast } from "sonner"
-import { Loader2, Code, ChevronDown, Upload, MoreVertical, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
+import { Loader2, Code, ChevronDown, Upload, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SenderIdentity {
@@ -47,6 +47,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
     const [editor, setEditor] = useState<any>(null)
     const [showFormattingToolbar, setShowFormattingToolbar] = useState(false)
     const [attachments, setAttachments] = useState<File[]>([])
+    const [isHtmlMode, setIsHtmlMode] = useState(false) // When true, shows iframe preview instead of Tiptap
 
     useEffect(() => {
         if (state?.success) {
@@ -62,6 +63,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
             setShowCc(false)
             setShowBcc(false)
             setAttachments([])
+            setIsHtmlMode(false)
         } else if (state?.error) {
             toast.error("Failed to Send", {
                 description: state.error,
@@ -88,7 +90,25 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
     }
 
     const handleHtmlInsert = (html: string) => {
+        // Set the HTML content state (this is what gets sent in the email)
         setHtmlContent(html)
+
+        // Check if this is complex HTML (with style tags, DOCTYPE, or full HTML structure)
+        const isComplexHtml = html.includes('<style') ||
+            html.includes('<!DOCTYPE') ||
+            html.includes('<html') ||
+            html.includes('<head')
+
+        if (isComplexHtml) {
+            // Enable HTML preview mode - show iframe instead of Tiptap
+            setIsHtmlMode(true)
+        } else {
+            // Simple HTML - update the Tiptap editor
+            setIsHtmlMode(false)
+            if (editor) {
+                editor.commands.setContent(html)
+            }
+        }
     }
 
     const handleFileAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,8 +136,8 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                 {/* Form Fields Area */}
                 <div className="px-4">
                     {/* From Row */}
-                    <div className="flex items-center py-2 border-b border-gray-200 group">
-                        <span className="text-sm text-gray-500 w-[40px] flex-shrink-0">From</span>
+                    <div className="flex items-center h-10 border-b border-gray-200 group">
+                        <span className="text-sm text-gray-500 w-[50px] flex-shrink-0">From</span>
                         <div className="flex-1">
                             <Select name="senderIdentityId" value={selectedIdentity} onValueChange={setSelectedIdentity} required>
                                 <SelectTrigger className="w-full border-0 shadow-none h-auto p-0 text-sm focus:ring-0 hover:bg-transparent data-[placeholder]:text-muted-foreground">
@@ -138,8 +158,8 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                     </div>
 
                     {/* To Row */}
-                    <div className="flex items-center py-2 border-b border-gray-200 group relative">
-                        <span className="text-sm text-gray-500 w-[40px] flex-shrink-0 group-focus-within:text-gray-800 transition-colors">To</span>
+                    <div className="flex items-center h-10 border-b border-gray-200 group relative">
+                        <span className="text-sm text-gray-500 w-[50px] flex-shrink-0 group-focus-within:text-gray-800 transition-colors">To</span>
                         <div className="flex-1 flex items-center">
                             <Input
                                 id="to"
@@ -148,7 +168,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                                 value={to}
                                 onChange={(e) => setTo(e.target.value)}
                                 required
-                                className="border-0 shadow-none h-auto p-0 text-sm focus-visible:ring-0 placeholder:text-gray-500"
+                                className="border-0 shadow-none h-6 p-0 text-sm focus-visible:ring-0 placeholder:text-gray-500 caret-blue-600"
                             />
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -193,7 +213,7 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                     )}
 
                     {/* Subject Row */}
-                    <div className="flex items-center py-2 border-b border-gray-200">
+                    <div className="flex items-center h-10 border-b border-gray-200">
                         <Input
                             id="subject"
                             name="subject"
@@ -201,19 +221,59 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
                             required
-                            className="border-0 shadow-none h-auto p-0 text-sm focus-visible:ring-0 placeholder:text-gray-500 font-normal"
+                            className="border-0 shadow-none h-6 p-0 text-sm focus-visible:ring-0 placeholder:text-gray-500 font-normal caret-blue-600"
                         />
                     </div>
                 </div>
 
                 {/* Editor Area */}
                 <div className="flex-1 px-4 py-2 overflow-y-auto min-h-[300px]">
-                    <TiptapEditor value={htmlContent} onChange={setHtmlContent} onEditorReady={setEditor} />
+                    {isHtmlMode ? (
+                        /* HTML Preview Mode - shows exact preview of complex HTML */
+                        <div className="h-full">
+                            <div className="flex items-center justify-between mb-2 px-2">
+                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                    <Code className="h-3 w-3" />
+                                    HTML Preview Mode
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsHtmlMode(false)
+                                        setHtmlContent('')
+                                        if (editor) {
+                                            editor.commands.setContent('')
+                                        }
+                                    }}
+                                    className="text-xs text-blue-600 hover:underline"
+                                >
+                                    Switch to Editor
+                                </button>
+                            </div>
+                            <iframe
+                                srcDoc={htmlContent}
+                                className="w-full border border-gray-200 rounded-lg bg-white"
+                                title="Email Preview"
+                                sandbox="allow-same-origin"
+                                style={{ minHeight: '400px' }}
+                                onLoad={(e) => {
+                                    const iframe = e.target as HTMLIFrameElement
+                                    if (iframe.contentDocument?.body) {
+                                        const height = iframe.contentDocument.body.scrollHeight
+                                        iframe.style.height = `${Math.max(400, height + 40)}px`
+                                    }
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        /* Regular Tiptap Editor */
+                        <TiptapEditor value={htmlContent} onChange={setHtmlContent} onEditorReady={setEditor} />
+                    )}
                     <input type="hidden" name="html" value={htmlContent} />
                 </div>
 
                 {/* Persistent Formatting Toolbar */}
-                {editor && (
+                {editor && !isHtmlMode && (
                     <div className="mx-4 mb-2 p-1.5 flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg">
                         {/* Font Family */}
                         <Select
@@ -423,10 +483,25 @@ export function ComposeForm({ allowedIdentities }: ComposeFormProps) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button type="button" variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-100 rounded">
-                            <MoreVertical className="h-5 w-5" />
-                        </Button>
-                        <Button type="button" variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-100 rounded hover:text-red-600" title="Discard draft">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-gray-500 hover:bg-gray-100 rounded hover:text-red-600"
+                            title="Discard draft"
+                            onClick={() => {
+                                setHtmlContent('')
+                                setIsHtmlMode(false)
+                                setAttachments([])
+                                setSubject('')
+                                setTo('')
+                                setCc('')
+                                setBcc('')
+                                if (editor) {
+                                    editor.commands.setContent('')
+                                }
+                            }}
+                        >
                             <Trash2 className="h-5 w-5" />
                         </Button>
                     </div>

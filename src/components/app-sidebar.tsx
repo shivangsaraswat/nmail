@@ -109,7 +109,7 @@ export function AppSidebar() {
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton className="w-full h-auto py-2" tooltip={user?.name || "User"}>
                                     <Avatar className="h-6 w-6">
-                                        <AvatarImage src={user?.image || ""} />
+                                        <AvatarImage src={user?.image || undefined} />
                                         <AvatarFallback className="text-xs">{user?.name?.substring(0, 2) || "U"}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col items-start text-xs flex-1 overflow-hidden">
