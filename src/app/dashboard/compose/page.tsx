@@ -1,13 +1,13 @@
 
 import { auth } from "@/auth"
 import { db } from "@/db"
-import { userSenderPermissions, senderIdentities, emailTemplates } from "@/db/schema"
+import { userSenderPermissions, senderIdentities, emailTemplates, emailDrafts } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq } from "drizzle-orm"
 import { ComposeForm } from "@/components/compose-form"
 
 interface ComposePageProps {
-    searchParams: Promise<{ templateId?: string }>
+    searchParams: Promise<{ templateId?: string; draftId?: string }>
 }
 
 export default async function ComposePage({ searchParams }: ComposePageProps) {
@@ -54,6 +54,32 @@ export default async function ComposePage({ searchParams }: ComposePageProps) {
         }
     }
 
+    let initialDraft: {
+        id: string
+        senderIdentityId: string
+        to: string
+        cc: string
+        bcc: string
+        subject: string
+        htmlContent: string
+    } | undefined
+    if (params.draftId) {
+        const draft = await db.query.emailDrafts.findFirst({
+            where: eq(emailDrafts.id, params.draftId),
+        })
+        if (draft && draft.userId === session.user.id) {
+            initialDraft = {
+                id: draft.id,
+                senderIdentityId: draft.senderIdentityId,
+                to: (draft.recipients as string[]).join(", "),
+                cc: (draft.ccRecipients as string[]).join(", "),
+                bcc: (draft.bccRecipients as string[]).join(", "),
+                subject: draft.subject,
+                htmlContent: draft.htmlContent,
+            }
+        }
+    }
+
     return (
         <div className="space-y-4">
             <div>
@@ -64,7 +90,7 @@ export default async function ComposePage({ searchParams }: ComposePageProps) {
             </div>
 
             <div className="bg-card rounded-lg border shadow-sm">
-                <ComposeForm allowedIdentities={allowedIdentities} initialTemplate={initialTemplate} />
+                <ComposeForm allowedIdentities={allowedIdentities} initialTemplate={initialTemplate} initialDraft={initialDraft} />
             </div>
         </div>
     )

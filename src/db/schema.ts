@@ -82,10 +82,39 @@ export const emailLogs = pgTable("email_logs", {
     senderIdentityId: uuid("sender_identity_id").references(() => senderIdentities.id).notNull(),
     recipients: jsonb("recipients").notNull(), // Array of strings
     subject: text("subject").notNull(),
+    htmlContent: text("html_content").notNull().default(""),
     htmlContentHash: text("html_content_hash").notNull(),
     sentAt: timestamp("sent_at").defaultNow().notNull(),
     deliveryStatus: text("delivery_status").notNull(), // 'sent', 'failed'
     errorMessage: text("error_message"),
+});
+
+export const emailDrafts = pgTable("email_drafts", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    senderIdentityId: uuid("sender_identity_id").references(() => senderIdentities.id).notNull(),
+    recipients: jsonb("recipients").notNull().default([]),
+    ccRecipients: jsonb("cc_recipients").notNull().default([]),
+    bccRecipients: jsonb("bcc_recipients").notNull().default([]),
+    subject: text("subject").notNull().default(""),
+    htmlContent: text("html_content").notNull().default(""),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const scheduledEmails = pgTable("scheduled_emails", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    senderIdentityId: uuid("sender_identity_id").references(() => senderIdentities.id).notNull(),
+    recipients: jsonb("recipients").notNull(),
+    ccRecipients: jsonb("cc_recipients").notNull().default([]),
+    bccRecipients: jsonb("bcc_recipients").notNull().default([]),
+    subject: text("subject").notNull(),
+    htmlContent: text("html_content").notNull(),
+    scheduledFor: timestamp("scheduled_for").notNull(),
+    status: text("status").notNull().default("scheduled"),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const auditLogs = pgTable("audit_logs", {
@@ -113,6 +142,8 @@ export const usersRelations = relations(users, ({ many }) => ({
     sessions: many(sessions),
     permissions: many(userSenderPermissions),
     emailLogs: many(emailLogs),
+    emailDrafts: many(emailDrafts),
+    scheduledEmails: many(scheduledEmails),
     auditLogs: many(auditLogs),
     emailTemplates: many(emailTemplates),
 }));
@@ -120,6 +151,8 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const senderIdentitiesRelations = relations(senderIdentities, ({ many }) => ({
     permissions: many(userSenderPermissions),
     emailLogs: many(emailLogs),
+    emailDrafts: many(emailDrafts),
+    scheduledEmails: many(scheduledEmails),
 }));
 
 export const userSenderPermissionsRelations = relations(userSenderPermissions, ({ one }) => ({
@@ -140,6 +173,28 @@ export const emailLogsRelations = relations(emailLogs, ({ one }) => ({
     }),
     senderIdentity: one(senderIdentities, {
         fields: [emailLogs.senderIdentityId],
+        references: [senderIdentities.id],
+    }),
+}));
+
+export const emailDraftsRelations = relations(emailDrafts, ({ one }) => ({
+    user: one(users, {
+        fields: [emailDrafts.userId],
+        references: [users.id],
+    }),
+    senderIdentity: one(senderIdentities, {
+        fields: [emailDrafts.senderIdentityId],
+        references: [senderIdentities.id],
+    }),
+}));
+
+export const scheduledEmailsRelations = relations(scheduledEmails, ({ one }) => ({
+    user: one(users, {
+        fields: [scheduledEmails.userId],
+        references: [users.id],
+    }),
+    senderIdentity: one(senderIdentities, {
+        fields: [scheduledEmails.senderIdentityId],
         references: [senderIdentities.id],
     }),
 }));

@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Home, Send, History, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText, Moon, Sun } from "lucide-react"
+import { Home, Send, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText, Moon, Sun, FilePenLine, Clock3 } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -30,7 +30,7 @@ import Link from 'next/link'
 import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
 
-export function AppSidebar() {
+export function AppSidebar({ scheduledCount = 0 }: { scheduledCount?: number }) {
     const { data: session } = useSession()
     const user = session?.user
 
@@ -70,10 +70,23 @@ export function AppSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton asChild tooltip="Sent History">
-                                    <Link href="/dashboard/history">
-                                        <History />
-                                        <span>Sent History</span>
+                                <SidebarMenuButton asChild tooltip="Drafts">
+                                    <Link href="/dashboard/drafts">
+                                        <FilePenLine />
+                                        <span>Drafts</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild tooltip="Scheduled">
+                                    <Link href="/dashboard/scheduled">
+                                        <Clock3 />
+                                        <span>Scheduled</span>
+                                        {scheduledCount > 0 && (
+                                            <span className="ml-auto rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground group-data-[collapsible=icon]:hidden">
+                                                {scheduledCount}
+                                            </span>
+                                        )}
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

@@ -1,52 +1,42 @@
 
 import { auth } from "@/auth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { db } from "@/db"
+import { emailLogs } from "@/db/schema"
+import { desc, eq } from "drizzle-orm"
+import { redirect } from "next/navigation"
+import { SentMailView } from "@/components/sent-mail-view"
 
 export default async function DashboardPage() {
     const session = await auth()
 
+    if (!session?.user?.id) {
+        redirect("/api/auth/signin")
+    }
+
+    const logs = await db.query.emailLogs.findMany({
+        where: session.user.role === "admin" ? undefined : eq(emailLogs.userId, session.user.id),
+        orderBy: [desc(emailLogs.sentAt)],
+        with: {
+            senderIdentity: true,
+            user: true,
+        },
+    })
+
+    const messages = logs.map((log) => ({
+        id: log.id,
+        subject: log.subject,
+        recipients: Array.isArray(log.recipients) ? log.recipients as string[] : [],
+        htmlContent: log.htmlContent,
+        sentAt: log.sentAt.toISOString(),
+        deliveryStatus: log.deliveryStatus,
+        errorMessage: log.errorMessage,
+        senderName: log.senderIdentity.displayName,
+        senderEmail: log.senderIdentity.emailAddress,
+        sentBy: log.user.name || log.user.email,
+        isAdminView: session.user.role === "admin",
+    }))
+
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight">Welcome back, {session?.user?.name}</h1>
-                <p className="text-muted-foreground">Manage your outgoing communications securely.</p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Compose Email</CardTitle>
-                        <CardDescription>Send a new official email</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {/* TODO: Link to compose */}
-                        <p className="text-sm text-muted-foreground">Start writing a new message using approved templates.</p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Sent History</CardTitle>
-                        <CardDescription>View past communications</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {/* TODO: Recent count */}
-                        <p className="text-sm text-muted-foreground">You have sent 0 emails this month.</p>
-                    </CardContent>
-                </Card>
-
-                {session?.user.role === 'admin' && (
-                    <Card className="border-blue-200 bg-blue-50/50">
-                        <CardHeader>
-                            <CardTitle>Admin Controls</CardTitle>
-                            <CardDescription>System Management</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground">Manage users and sender identities.</p>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-        </div>
+        <SentMailView messages={messages} />
     )
 }

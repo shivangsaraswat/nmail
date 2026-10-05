@@ -3,6 +3,10 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import { ScheduledEmailRunner } from "@/components/scheduled-email-runner"
+import { db } from "@/db"
+import { scheduledEmails } from "@/db/schema"
+import { and, count, eq } from "drizzle-orm"
 
 export default async function DashboardLayout({
     children,
@@ -15,9 +19,19 @@ export default async function DashboardLayout({
         redirect("/api/auth/signin")
     }
 
+    const scheduledWhere = session.user.role === "admin"
+        ? eq(scheduledEmails.status, "scheduled")
+        : and(eq(scheduledEmails.status, "scheduled"), eq(scheduledEmails.userId, session.user.id))
+    const [scheduledCountRow] = await db
+        .select({ count: count() })
+        .from(scheduledEmails)
+        .where(scheduledWhere)
+    const scheduledCount = Number(scheduledCountRow?.count || 0)
+
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar scheduledCount={scheduledCount} />
+            <ScheduledEmailRunner hasActiveScheduledEmails={scheduledCount > 0} />
             <main className="w-full">
                 <div className="p-6">
                     {children}

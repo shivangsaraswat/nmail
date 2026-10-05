@@ -93,6 +93,7 @@ export class EmailService {
                 senderIdentityId: params.senderIdentityId,
                 recipients: params.recipients,
                 subject: params.subject,
+                htmlContent: params.html,
                 htmlContentHash: htmlHash,
                 deliveryStatus: "sent",
             });
@@ -107,6 +108,7 @@ export class EmailService {
                 senderIdentityId: params.senderIdentityId,
                 recipients: params.recipients,
                 subject: params.subject,
+                htmlContent: params.html,
                 htmlContentHash: htmlHash,
                 deliveryStatus: "failed",
                 errorMessage: error.message,

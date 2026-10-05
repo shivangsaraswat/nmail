@@ -1,10 +1,11 @@
 "use client"
 
-import { useActionState, useState, useEffect } from "react"
+import { useActionState, useState, useEffect, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { sendEmailAction, type EmailState } from "@/app/actions/email"
+import { deleteDraftAction, saveDraftAction, scheduleEmailAction, sendEmailAction, type EmailState } from "@/app/actions/email"
 import { CSVUploadButton } from "@/components/csv-upload-button"
 import { TiptapEditor } from "@/components/tiptap-editor"
 import { HtmlEditorModal } from "@/components/html-editor-modal"
@@ -12,7 +13,7 @@ import { GmailColorPicker } from "@/components/gmail-color-picker"
 import { GmailFontSizePicker } from "@/components/gmail-font-size-picker"
 import { GmailAlignmentPicker } from "@/components/gmail-alignment-picker"
 import { toast } from "sonner"
-import { Loader2, Code, ChevronDown, Upload, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
+import { Loader2, Code, ChevronDown, Clock3, Upload, Trash2, Smile, Image as ImageIcon, Lock as LockClock, Link as LinkIcon, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Undo, Redo, Strikethrough, Quote, Paperclip, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SenderIdentity {
@@ -24,6 +25,15 @@ interface SenderIdentity {
 interface ComposeFormProps {
     allowedIdentities: SenderIdentity[]
     initialTemplate?: { htmlContent: string; name: string }
+    initialDraft?: {
+        id: string
+        senderIdentityId: string
+        to: string
+        cc: string
+        bcc: string
+        subject: string
+        htmlContent: string
+    }
 }
 
 const initialState: EmailState = {
@@ -32,16 +42,19 @@ const initialState: EmailState = {
     error: ""
 }
 
-export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormProps) {
+export function ComposeForm({ allowedIdentities, initialTemplate, initialDraft }: ComposeFormProps) {
     const [state, formAction, isPending] = useActionState(sendEmailAction, initialState)
+    const router = useRouter()
+    const [isSavingDraft, startSavingDraft] = useTransition()
+    const [isScheduling, startScheduling] = useTransition()
 
     // Form state
-    const [selectedIdentity, setSelectedIdentity] = useState(allowedIdentities[0]?.id || "")
-    const [to, setTo] = useState("")
-    const [cc, setCc] = useState("")
-    const [bcc, setBcc] = useState("")
-    const [subject, setSubject] = useState("")
-    const [htmlContent, setHtmlContent] = useState(initialTemplate?.htmlContent || "")
+    const [selectedIdentity, setSelectedIdentity] = useState(initialDraft?.senderIdentityId || allowedIdentities[0]?.id || "")
+    const [to, setTo] = useState(initialDraft?.to || "")
+    const [cc, setCc] = useState(initialDraft?.cc || "")
+    const [bcc, setBcc] = useState(initialDraft?.bcc || "")
+    const [subject, setSubject] = useState(initialDraft?.subject || "")
+    const [htmlContent, setHtmlContent] = useState(initialDraft?.htmlContent || initialTemplate?.htmlContent || "")
 
     // UI state
     const [showCc, setShowCc] = useState(false)
@@ -52,6 +65,10 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
     const [showFormattingToolbar, setShowFormattingToolbar] = useState(false)
     const [attachments, setAttachments] = useState<File[]>([])
     const [isHtmlMode, setIsHtmlMode] = useState(!!initialTemplate) // When true, shows iframe preview instead of Tiptap
+    const [draftId, setDraftId] = useState(initialDraft?.id || "")
+    const [scheduleOpen, setScheduleOpen] = useState(false)
+    const [scheduledFor, setScheduledFor] = useState("")
+    const [scheduleMinimum] = useState(() => new Date(Date.now() + 60_000).toISOString().slice(0, 16))
 
     useEffect(() => {
         if (state?.success) {
@@ -68,12 +85,13 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
             setShowBcc(false)
             setAttachments([])
             setIsHtmlMode(false)
+            router.push("/dashboard")
         } else if (state?.error) {
             toast.error("Failed to Send", {
                 description: state.error,
             })
         }
-    }, [state])
+    }, [router, state])
 
     const handleToCSVImport = (emails: string[]) => {
         const currentEmails = to.split(",").map(e => e.trim()).filter(e => e)
@@ -125,6 +143,74 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
 
     const removeAttachment = (index: number) => {
         setAttachments(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const getComposeFormData = () => {
+        const data = new FormData()
+        data.set("senderIdentityId", selectedIdentity)
+        data.set("to", to)
+        data.set("cc", cc)
+        data.set("bcc", bcc)
+        data.set("subject", subject)
+        data.set("html", editor && !isHtmlMode ? editor.getHTML() : htmlContent)
+        if (draftId) data.set("draftId", draftId)
+        return data
+    }
+
+    const handleSaveDraft = () => {
+        startSavingDraft(async () => {
+            const result = await saveDraftAction(getComposeFormData())
+            if (result.success) {
+                if (result.draftId) setDraftId(result.draftId)
+                toast.success("Draft saved")
+                router.push("/dashboard/drafts")
+            } else {
+                toast.error("Could not save draft", { description: result.error })
+            }
+        })
+    }
+
+    const handleSchedule = () => {
+        startScheduling(async () => {
+            const data = getComposeFormData()
+            data.set("scheduledFor", new Date(`${scheduledFor}:00`).toISOString())
+            const result = await scheduleEmailAction(data)
+            if (result.success) {
+                toast.success("Email scheduled", { description: "It will be sent at the selected time." })
+                setScheduleOpen(false)
+                setScheduledFor("")
+                router.push("/dashboard/scheduled")
+            } else {
+                toast.error("Could not schedule email", { description: result.error })
+            }
+        })
+    }
+
+    const hasComposeContent = Boolean(to.trim() || cc.trim() || bcc.trim() || subject.trim() || htmlContent.trim() || attachments.length)
+
+    const handleDiscard = () => {
+        if (draftId) {
+            const data = new FormData()
+            data.set("draftId", draftId)
+            deleteDraftAction(data).then((result) => {
+                if (result.success) {
+                    toast.success("Draft deleted")
+                    router.push("/dashboard/drafts")
+                } else {
+                    toast.error("Could not delete draft", { description: result.error })
+                }
+            })
+            return
+        }
+
+        setHtmlContent("")
+        setIsHtmlMode(false)
+        setAttachments([])
+        setSubject("")
+        setTo("")
+        setCc("")
+        setBcc("")
+        if (editor) editor.commands.setContent("")
     }
 
     const selectedIdentityData = allowedIdentities.find(i => i.id === selectedIdentity)
@@ -413,6 +499,25 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                     )
                 })}
 
+                {scheduleOpen && (
+                    <div className="mx-4 mb-2 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2">
+                        <Clock3 className="size-4 text-muted-foreground" />
+                        <label htmlFor="scheduledFor" className="text-sm font-medium">Schedule send</label>
+                        <input
+                            id="scheduledFor"
+                            type="datetime-local"
+                            value={scheduledFor}
+                            min={scheduleMinimum}
+                            onChange={(event) => setScheduledFor(event.target.value)}
+                            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+                        />
+                        <Button type="button" size="sm" onClick={handleSchedule} disabled={isScheduling || !scheduledFor}>
+                            {isScheduling ? "Scheduling..." : "Schedule"}
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setScheduleOpen(false)}>Cancel</Button>
+                    </div>
+                )}
+
                 {/* Footer Toolbar */}
                 <div className="px-4 py-2 flex items-center justify-between sticky bottom-0 bg-background z-10">
                     <div className="flex items-center gap-2">
@@ -427,10 +532,14 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                                 {isPending ? "Sending..." : "Send"}
                             </Button>
                             <div className="h-full w-px bg-blue-700/50"></div>
-                            <Button type="button" size="sm" className="bg-transparent hover:bg-transparent border-0 h-full rounded-r-full px-2 shadow-none">
+                            <Button type="button" size="sm" onClick={() => setScheduleOpen(prev => !prev)} title="Schedule send" className="bg-transparent hover:bg-transparent border-0 h-full rounded-r-full px-2 shadow-none">
                                 <ChevronDown className="h-4 w-4" />
                             </Button>
                         </div>
+
+                        <Button type="button" variant="ghost" size="sm" onClick={handleSaveDraft} disabled={isSavingDraft || allowedIdentities.length === 0} className="text-muted-foreground">
+                            {isSavingDraft ? "Saving..." : "Save draft"}
+                        </Button>
 
                         {/* Formatting Toggle */}
                         <Button
@@ -521,27 +630,18 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {hasComposeContent && (
                         <Button
                             type="button"
                             variant="ghost"
                             size="icon"
                             className="text-muted-foreground hover:bg-accent rounded hover:text-red-600"
                             title="Discard draft"
-                            onClick={() => {
-                                setHtmlContent('')
-                                setIsHtmlMode(false)
-                                setAttachments([])
-                                setSubject('')
-                                setTo('')
-                                setCc('')
-                                setBcc('')
-                                if (editor) {
-                                    editor.commands.setContent('')
-                                }
-                            }}
+                            onClick={handleDiscard}
                         >
                             <Trash2 className="h-5 w-5" />
                         </Button>
+                        )}
                     </div>
                 </div>
             </form >

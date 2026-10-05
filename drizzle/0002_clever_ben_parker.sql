@@ -1,0 +1,1 @@
+ALTER TABLE "email_logs" ADD COLUMN "html_content" text DEFAULT '' NOT NULL;
