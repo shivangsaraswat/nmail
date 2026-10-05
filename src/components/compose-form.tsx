@@ -131,7 +131,18 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
 
     return (
         <>
-            <form action={formAction} className="flex flex-col h-full bg-card rounded-t-lg shadow-xl overflow-hidden border border-border">
+            <form
+                action={formAction}
+                onSubmit={(event) => {
+                    if (editor && !isHtmlMode) {
+                        const htmlInput = event.currentTarget.elements.namedItem('html') as HTMLInputElement | null
+                        if (htmlInput) {
+                            htmlInput.value = editor.getHTML()
+                        }
+                    }
+                }}
+                className="flex flex-col h-full bg-card rounded-t-lg shadow-xl overflow-hidden border border-border"
+            >
                 {/* Gmail-style Window Header */}
                 <div className="flex items-center justify-between px-4 py-3 bg-muted border-b border-border cursor-move">
                     <span className="text-sm font-medium text-foreground">New Message</span>
@@ -295,6 +306,15 @@ export function ComposeForm({ allowedIdentities, initialTemplate }: ComposeFormP
                                 <SelectItem value="monospace">Monospace</SelectItem>
                                 <SelectItem value="Georgia, serif">Georgia</SelectItem>
                                 <SelectItem value="Arial, sans-serif">Arial</SelectItem>
+                                <SelectItem value="Helvetica, Arial, sans-serif">Helvetica</SelectItem>
+                                <SelectItem value="Verdana, sans-serif">Verdana</SelectItem>
+                                <SelectItem value="Tahoma, sans-serif">Tahoma</SelectItem>
+                                <SelectItem value="Trebuchet MS, sans-serif">Trebuchet MS</SelectItem>
+                                <SelectItem value="Calibri, Arial, sans-serif">Calibri</SelectItem>
+                                <SelectItem value="Cambria, Georgia, serif">Cambria</SelectItem>
+                                <SelectItem value="Times New Roman, serif">Times New Roman</SelectItem>
+                                <SelectItem value="Garamond, serif">Garamond</SelectItem>
+                                <SelectItem value="Courier New, monospace">Courier New</SelectItem>
                                 <SelectItem value="'Comic Sans MS', cursive">Comic Sans</SelectItem>
                             </SelectContent>
                         </Select>
