@@ -135,6 +135,53 @@ export const emailTemplates = pgTable("email_templates", {
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const campaigns = pgTable("campaigns", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    status: text("status").notNull().default("draft"),
+    senderIdentityId: uuid("sender_identity_id").references(() => senderIdentities.id),
+    subjectTemplate: text("subject_template").notNull().default(""),
+    htmlTemplate: text("html_template").notNull().default(""),
+    scheduledAt: timestamp("scheduled_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const campaignColumns = pgTable("campaign_columns", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "cascade" }).notNull(),
+    displayName: text("display_name").notNull(),
+    variableKey: text("variable_key").notNull(),
+    type: text("type").notNull().default("text"),
+    position: integer("position").notNull().default(0),
+    required: boolean("required").notNull().default(false),
+});
+
+export const campaignRows = pgTable("campaign_rows", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "cascade" }).notNull(),
+    data: jsonb("data").$type<Record<string, string>>().notNull().default({}),
+    status: text("status").notNull().default("pending"),
+    sentAt: timestamp("sent_at"),
+    messageId: text("message_id"),
+    error: text("error"),
+});
+
+export const campaignActivities = pgTable("campaign_activities", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    campaignId: uuid("campaign_id").references(() => campaigns.id, { onDelete: "cascade" }).notNull(),
+    campaignRowId: uuid("campaign_row_id").references(() => campaignRows.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    recipient: text("recipient"),
+    sender: text("sender"),
+    status: text("status").notNull(),
+    providerMessageId: text("provider_message_id"),
+    error: text("error"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // --- Relations ---
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -146,6 +193,8 @@ export const usersRelations = relations(users, ({ many }) => ({
     scheduledEmails: many(scheduledEmails),
     auditLogs: many(auditLogs),
     emailTemplates: many(emailTemplates),
+    campaigns: many(campaigns),
+    campaignActivities: many(campaignActivities),
 }));
 
 export const senderIdentitiesRelations = relations(senderIdentities, ({ many }) => ({
@@ -204,4 +253,27 @@ export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
         fields: [emailTemplates.createdById],
         references: [users.id],
     }),
+}));
+
+export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
+    owner: one(users, { fields: [campaigns.ownerId], references: [users.id] }),
+    senderIdentity: one(senderIdentities, { fields: [campaigns.senderIdentityId], references: [senderIdentities.id] }),
+    columns: many(campaignColumns),
+    rows: many(campaignRows),
+    activities: many(campaignActivities),
+}));
+
+export const campaignColumnsRelations = relations(campaignColumns, ({ one }) => ({
+    campaign: one(campaigns, { fields: [campaignColumns.campaignId], references: [campaigns.id] }),
+}));
+
+export const campaignRowsRelations = relations(campaignRows, ({ one, many }) => ({
+    campaign: one(campaigns, { fields: [campaignRows.campaignId], references: [campaigns.id] }),
+    activities: many(campaignActivities),
+}));
+
+export const campaignActivitiesRelations = relations(campaignActivities, ({ one }) => ({
+    campaign: one(campaigns, { fields: [campaignActivities.campaignId], references: [campaigns.id] }),
+    row: one(campaignRows, { fields: [campaignActivities.campaignRowId], references: [campaignRows.id] }),
+    user: one(users, { fields: [campaignActivities.userId], references: [users.id] }),
 }));

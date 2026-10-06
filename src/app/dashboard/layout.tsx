@@ -5,7 +5,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { ScheduledEmailRunner } from "@/components/scheduled-email-runner"
 import { db } from "@/db"
-import { scheduledEmails } from "@/db/schema"
+import { campaigns, scheduledEmails } from "@/db/schema"
 import { and, count, eq } from "drizzle-orm"
 
 export default async function DashboardLayout({
@@ -26,7 +26,13 @@ export default async function DashboardLayout({
         .select({ count: count() })
         .from(scheduledEmails)
         .where(scheduledWhere)
-    const scheduledCount = Number(scheduledCountRow?.count || 0)
+    const [campaignCountRow] = await db
+        .select({ count: count() })
+        .from(campaigns)
+        .where(session.user.role === "admin"
+            ? eq(campaigns.status, "scheduled")
+            : and(eq(campaigns.status, "scheduled"), eq(campaigns.ownerId, session.user.id)))
+    const scheduledCount = Number(scheduledCountRow?.count || 0) + Number(campaignCountRow?.count || 0)
 
     return (
         <SidebarProvider>
@@ -40,4 +46,3 @@ export default async function DashboardLayout({
         </SidebarProvider>
     )
 }
-

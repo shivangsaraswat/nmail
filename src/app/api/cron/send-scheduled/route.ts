@@ -1,7 +1,8 @@
 import { auth } from "@/auth"
 import { db } from "@/db"
-import { scheduledEmails } from "@/db/schema"
+import { campaignActivities, campaignRows, campaigns, scheduledEmails } from "@/db/schema"
 import { emailService } from "@/lib/email"
+import { campaignRecipient, renderCampaignTemplate, validateCampaign } from "@/lib/campaign"
 import { and, eq, lte } from "drizzle-orm"
 
 async function processScheduledEmails(userId?: string) {
@@ -57,7 +58,59 @@ async function processScheduledEmails(userId?: string) {
         }
     }
 
-    return { processed: dueMessages.length, sent, failed }
+    const scheduledCampaigns = await db.query.campaigns.findMany({
+        where: userId
+            ? and(eq(campaigns.status, "scheduled"), eq(campaigns.ownerId, userId), lte(campaigns.scheduledAt, new Date()))
+            : and(eq(campaigns.status, "scheduled"), lte(campaigns.scheduledAt, new Date())),
+        with: { owner: true, columns: { orderBy: (table, { asc }) => [asc(table.position)] }, rows: true, senderIdentity: true },
+        limit: 10,
+    })
+    let campaignsSent = 0
+    let campaignsFailed = 0
+    for (const campaign of scheduledCampaigns) {
+        const [claimed] = await db.update(campaigns)
+            .set({ status: "sending", updatedAt: new Date() })
+            .where(and(eq(campaigns.id, campaign.id), eq(campaigns.status, "scheduled")))
+            .returning({ id: campaigns.id })
+        if (!claimed || !campaign.senderIdentityId || !campaign.senderIdentity) continue
+        const validation = validateCampaign({
+            rows: campaign.rows,
+            columns: campaign.columns,
+            subject: campaign.subjectTemplate,
+            html: campaign.htmlTemplate,
+        })
+        if (!validation.valid) {
+            await db.update(campaigns).set({ status: "failed", updatedAt: new Date() }).where(eq(campaigns.id, campaign.id))
+            campaignsFailed++
+            continue
+        }
+        let rowFailures = 0
+        for (const row of campaign.rows) {
+            try {
+                const result = await emailService.sendEmail({
+                    userId: campaign.ownerId,
+                    senderIdentityId: campaign.senderIdentityId,
+                    recipients: [campaignRecipient(row.data, campaign.columns)],
+                    subject: renderCampaignTemplate(campaign.subjectTemplate, row.data),
+                    html: renderCampaignTemplate(campaign.htmlTemplate, row.data),
+                    isAdmin: campaign.owner.role === "admin",
+                })
+                if (!result.success) throw new Error(result.error || "Delivery failed")
+                await db.update(campaignRows).set({ status: "sent", sentAt: new Date(), messageId: result.messageId }).where(eq(campaignRows.id, row.id))
+                await db.insert(campaignActivities).values({ campaignId: campaign.id, campaignRowId: row.id, userId: campaign.ownerId, recipient: campaignRecipient(row.data, campaign.columns), sender: campaign.senderIdentity.emailAddress, status: "sent", providerMessageId: result.messageId })
+            } catch (error) {
+                rowFailures++
+                const message = error instanceof Error ? error.message : "Delivery failed"
+                await db.update(campaignRows).set({ status: "failed", error: message }).where(eq(campaignRows.id, row.id))
+                await db.insert(campaignActivities).values({ campaignId: campaign.id, campaignRowId: row.id, userId: campaign.ownerId, recipient: campaignRecipient(row.data, campaign.columns), sender: campaign.senderIdentity.emailAddress, status: "failed", error: message })
+            }
+        }
+        await db.update(campaigns).set({ status: rowFailures ? (rowFailures === campaign.rows.length ? "failed" : "partially_failed") : "completed", updatedAt: new Date() }).where(eq(campaigns.id, campaign.id))
+        if (rowFailures) campaignsFailed++
+        else campaignsSent++
+    }
+
+    return { processed: dueMessages.length, sent, failed, campaignsProcessed: scheduledCampaigns.length, campaignsSent, campaignsFailed }
 }
 
 async function isAuthorized(request: Request) {

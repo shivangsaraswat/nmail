@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Home, Send, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText, Moon, Sun, FilePenLine, Clock3 } from "lucide-react"
+import { Home, Send, Users, Shield, LogOut, ChevronsUpDown, PanelLeft, FileText, Moon, Sun, FilePenLine, Clock3, Megaphone } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -95,6 +95,14 @@ export function AppSidebar({ scheduledCount = 0 }: { scheduledCount?: number }) 
                                     <Link href="/dashboard/templates">
                                         <FileText />
                                         <span>Templates</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild tooltip="Personalised Mail">
+                                    <Link href="/dashboard/campaigns">
+                                        <Megaphone />
+                                        <span>Personalised Mail</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

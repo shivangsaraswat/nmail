@@ -13,8 +13,8 @@ export function ScheduledEmailRunner({ hasActiveScheduledEmails }: { hasActiveSc
             const response = await fetch("/api/cron/send-scheduled", { method: "POST" })
             if (!response.ok) return
 
-            const result = await response.json() as { processed?: number }
-            if (result.processed && result.processed > 0) router.refresh()
+            const result = await response.json() as { processed?: number; campaignsProcessed?: number }
+            if ((result.processed || 0) + (result.campaignsProcessed || 0) > 0) router.refresh()
         }
 
         processDueEmails()
